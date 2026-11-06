@@ -1,4 +1,4 @@
 # SDP-final-team-ADA SE-2534
-Ansar Aldazhuman, David Naumkin, Alimger Toleugali
+Ansar Aldazhuman(adapter,facade), David Naumkin(builder,decorator), Alimger Toleugali(strategy,bridge)
 THEME: Doctor strange
-Patterns: Adapter, Facade, Decorator, Builder, Strategy
+Patterns: Adapter, Facade, Decorator, Builder, Strategy, Bridge
