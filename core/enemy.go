@@ -17,5 +17,8 @@ func (e *Enemy) TakeDamage(damage int) {
 	if e.Health < 0 {
 		e.Health = 0
 	}
-	fmt.Printf("   Target [%s] took %d dmg! Remaining HP: %d\n", e.Name, damage, e.Health)
+	fmt.Printf("   Target '%s' took %d dmg! Remaining HP: %d\n", e.Name, damage, e.Health)
+}
+func (e *Enemy) IsDefeated() bool {
+	return e.Health <= 0
 }
