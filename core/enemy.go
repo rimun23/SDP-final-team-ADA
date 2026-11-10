@@ -6,6 +6,7 @@ type Enemy struct {
 	Name        string
 	Health      int
 	ThreatLevel string
+	health      int
 }
 
 func NewEnemy(name string, health int, threatLevel string) *Enemy {

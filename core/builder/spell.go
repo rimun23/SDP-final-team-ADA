@@ -17,11 +17,11 @@ type Spell struct {
 }
 
 func (s *Spell) Cast() {
-	fmt.Printf(" ◉◉CASTING SPELL◉◉ «%s»!\n", s.name)
+	fmt.Printf("CASTING SPELL«%s»!\n", s.name)
 	if s.incantation != "" {
 		fmt.Printf("  Incantation: \"%s\"\n", s.incantation)
 	}
-	fmt.Printf("   ☆ Runic Circle ☆: '%s' Element: %s\n", s.runeCircle, s.element)
+	fmt.Printf("   Runic Circle: '%s' Element: %s\n", s.runeCircle, s.element)
 	fmt.Printf("   Target: %s, Sling Ring: %t\n", s.targetType, s.requiresSlingRing)
 	fmt.Printf("   Base Power: %d, Mana: %d\n", s.power, s.manaCost)
 }
