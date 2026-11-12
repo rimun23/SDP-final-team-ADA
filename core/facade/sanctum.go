@@ -1,88 +1,70 @@
 package facade
 
 import (
-	"fmt"
-
+	"SDP-final-team-ADA/core"
 	"SDP-final-team-ADA/core/adapter"
+	"SDP-final-team-ADA/core/bridge"
+	"SDP-final-team-ADA/core/builder"
+	"SDP-final-team-ADA/core/decorator"
+	"SDP-final-team-ADA/core/strategy"
+	"fmt"
 )
 
-type Enemy struct {
-	Name string
-	HP   int
-}
-
-type SpellFactory interface {
-	BuildSpell(name string) adapter.CastableSpell
-}
-
-type Enhancer interface {
-	Enhance(s adapter.CastableSpell, relics ...string) adapter.CastableSpell
-}
-
-type DimensionProjector interface {
-	Project(s adapter.CastableSpell, dimension string) string
-}
-
-type CombatStrategy interface {
-	ExecuteTactics(s adapter.CastableSpell, target *Enemy) string
-}
-
 type SanctumSanctorumFacade struct {
-	factory    SpellFactory
-	enhancer   Enhancer
-	projector  DimensionProjector
-	aggressive CombatStrategy
-	mirrorTrap CombatStrategy
-	darkhold   adapter.CastableSpell
+	grimoire *builder.AncientOneGrimoire
+	combat   *strategy.CombatContext
+	material bridge.DimensionChannel
+	mirror   bridge.DimensionChannel
+	astral   bridge.DimensionChannel
 }
 
-func NewSanctumSanctorumFacade(f SpellFactory, e Enhancer, p DimensionProjector, aggressive, mirrorTrap CombatStrategy) *SanctumSanctorumFacade {
-	book := adapter.NewDarkholdGrimoire("Interdimensional Strike")
+func NewSanctumSanctorumFacade() *SanctumSanctorumFacade {
 	return &SanctumSanctorumFacade{
-		factory:    f,
-		enhancer:   e,
-		projector:  p,
-		aggressive: aggressive,
-		mirrorTrap: mirrorTrap,
-		darkhold:   adapter.NewDarkholdAdapter(book),
+		grimoire: builder.NewAncientOneGrimoire(),
+		combat:   strategy.NewCombatContext(strategy.NewEldritchAssaultStrategy()),
+		material: bridge.NewMaterialDimension(),
+		mirror:   bridge.NewMirrorDimension(),
+		astral:   bridge.NewAstralPlane(),
 	}
 }
 
-func (s *SanctumSanctorumFacade) DefendSanctumFromThreat(threat *Enemy) {
-	fmt.Printf("Threat detected: %s (HP %d)\n", threat.Name, threat.HP)
+func (f *SanctumSanctorumFacade) DefendSanctumFromThreat(threat *core.Enemy) {
+	fmt.Printf("Threat detected: %s (HP %d)\n", threat.Name, threat.Health)
 
-	spell := s.factory.BuildSpell("Shield of the Seraphim")
-	fmt.Println("[1] built:", spell.Name())
+	shield := f.grimoire.CreateShieldOfSeraphim()
+	spell := decorator.WrapWithEyeOfAgamotto(decorator.WrapWithCloakOfLevitation(shield))
+	fmt.Println("[Builder + Decorator]", spell.GetDescription())
 
-	spell = s.enhancer.Enhance(spell, "EyeOfAgamotto", "CloakOfLevitation")
-	fmt.Println("[2] enhanced:", spell.Name())
+	fmt.Println("[Bridge]", bridge.NewSeraphicShield(f.material).Activate())
 
-	fmt.Println("[3]", s.projector.Project(spell, "real"))
-	fmt.Println("[4]", s.aggressive.ExecuteTactics(spell, threat))
+	f.combat.SetStrategy(strategy.NewEldritchAssaultStrategy())
+	fmt.Println("[Strategy]", f.combat.ExecuteStrategy(spell, threat))
 }
 
-func (s *SanctumSanctorumFacade) CastUltimateMirrorTrap(threat *Enemy) {
+func (f *SanctumSanctorumFacade) CastUltimateMirrorTrap(threat *core.Enemy) {
 	fmt.Printf("Luring %s into the Mirror Dimension\n", threat.Name)
 
-	spell := s.factory.BuildSpell("Mirror Wall")
-	fmt.Println("[1] built:", spell.Name())
+	bands := f.grimoire.CreateCrimsonBandsOfCyttorak()
+	spell := decorator.WrapWithEyeOfAgamotto(bands)
+	fmt.Println("[Builder + Decorator]", spell.GetDescription())
 
-	spell = s.enhancer.Enhance(spell, "EyeOfAgamotto")
-	fmt.Println("[2] enhanced:", spell.Name())
+	fmt.Println("[Bridge]", bridge.NewEldritchWhip(f.mirror).Activate())
 
-	fmt.Println("[3]", s.projector.Project(spell, "mirror"))
-	fmt.Println("[4]", s.mirrorTrap.ExecuteTactics(spell, threat))
+	f.combat.SetStrategy(strategy.NewMirrorTrapStrategy())
+	fmt.Println("[Strategy]", f.combat.ExecuteStrategy(spell, threat))
 }
 
-func (s *SanctumSanctorumFacade) InvokeForbiddenInterdimensionalStrike(threat *Enemy) {
+func (f *SanctumSanctorumFacade) InvokeForbiddenInterdimensionalStrike(threat *core.Enemy) {
 	fmt.Printf("Forbidden strike against %s\n", threat.Name)
 
-	spell := s.darkhold
-	fmt.Println("[1]", spell.Cast(50))
+	var spell core.Castable = adapter.NewDarkholdAdapter(adapter.NewDarkholdGrimoire("Interdimensional Strike"), 50)
+	fmt.Println("[Adapter]", spell.GetDescription())
 
-	spell = s.enhancer.Enhance(spell, "DarkDimensionTaint")
-	fmt.Println("[2] enhanced:", spell.Name())
+	spell = decorator.WrapWithDarkDimensionTaint(spell)
+	fmt.Println("[Decorator]", spell.GetDescription())
 
-	fmt.Println("[3]", s.projector.Project(spell, "astral"))
-	fmt.Println("[4]", s.aggressive.ExecuteTactics(spell, threat))
+	fmt.Println("[Bridge]", bridge.NewEldritchWhip(f.astral).Activate())
+
+	f.combat.SetStrategy(strategy.NewEldritchAssaultStrategy())
+	fmt.Println("[Strategy]", f.combat.ExecuteStrategy(spell, threat))
 }
